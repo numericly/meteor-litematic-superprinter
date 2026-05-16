@@ -1,27 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
+  "id": "super-printer",
   "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for Meteor Client addons.",
+  "name": "Super Printer",
+  "description": "A Meteor addon for printing from litematica.",
   "authors": [
-    "seasnail"
+    "Numericly"
   ],
   "contact": {
-    "sources": "https://github.com/MeteorDevelopment/meteor-addon-template"
+    "sources": "https://github.com/numericly/meteor-litematic-superprinter"
   },
-  "icon": "assets/template/icon.png",
+  "icon": "assets/superprinter/icon.png",
   "environment": "client",
   "entrypoints": {
     "meteor": [
-      "com.example.addon.AddonTemplate"
+      "net.numericly.superprinter.SuperPrinter"
     ]
   },
-  "mixins": [
-    "addon-template.mixins.json"
-  ],
   "custom": {
-    "meteor-client:color": "225,25,25",
+    "meteor-client:color": "235,107,52",
     "modmenu": {
       "parent": {
         "id": "meteor-client"

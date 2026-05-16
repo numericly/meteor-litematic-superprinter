@@ -17,6 +17,12 @@ repositories {
         name = "meteor-maven-snapshots"
         url = uri("https://maven.meteordev.org/snapshots")
     }
+    maven {
+        url = uri("https://jitpack.io")
+    }
+    maven {
+        url = uri("https://maven.fallenbreath.me/releases")
+    }
 }
 
 dependencies {
@@ -27,6 +33,10 @@ dependencies {
 
     // Meteor
     modImplementation(libs.meteor.client)
+
+    // Litematica
+    modImplementation(libs.litematica)
+    modImplementation(libs.malilib)
 }
 
 tasks {
