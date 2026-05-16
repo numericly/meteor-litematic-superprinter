@@ -29,13 +29,26 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Get Versions
+        run: |
+          MC_VERSION=$(grep -oP 'minecraft\s*=\s*"\K[^"]+' gradle/libs.versions.toml)
+          MOD_VERSION=$(grep -oP 'mod-version\s*=\s*"\K[^"]+' gradle/libs.versions.toml)
+
+          echo "MC_VERSION=$MC_VERSION" >> $GITHUB_ENV
+          echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
 
       - name: Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          automatic_release_tag: "v${{ env.MOD_VERSION }}"
+          title: "Release v${{ env.MOD_VERSION }} for ${{ env.MC_VERSION }}"
           prerelease: false
           files: |
             ./build/libs/*.jar
