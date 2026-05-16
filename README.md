@@ -8,11 +8,13 @@ _This only works on servers with NO anti-cheat. Using it anywhere else will not 
 
 ## How to use
 
-Just have the layers render and the items in your inventory and turn it on
+For 1.21+ use fork of litematica maintaind by [sakura-ryoko](https://github.com/sakura-ryoko)
 
-Use 1.5 blocks per second on default paper for maximum efficiency
+Stand in range of the schematic and have the correct items in your inventory
 
-### How it works
+_Use 1.5 blocks per second on a default paper server for maximum efficiency_
+
+## How it works
 
 This mod simulates the block state after placing and will match the following block properties
 
@@ -30,8 +32,13 @@ This mod simulates the block state after placing and will match the following bl
 
 It will also close trap doors and doors if needed
 
-### Known Issues
+## Known Issues
 
 - Won't place doors sometimes
 - Won't close fence gates
 - Will not place ignore: signs, potted plants, banners, and many more
+
+## Attribution
+
+This project was initially a fork of https://github.com/kkllffaa/meteor-litematica-printer, so thank you to kkllffaa 
+for the base of this addon
