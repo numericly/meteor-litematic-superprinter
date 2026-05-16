@@ -108,7 +108,7 @@ public class ModulePrinter extends Module {
     private final Setting<Integer> fadeTime = sgRendering.add(new IntSetting.Builder()
         .name("fade-time")
         .description("Time for the rendering to fade, in milliseconds.")
-        .defaultValue(3)
+        .defaultValue(400)
         .sliderRange(100, 3000)
         .min(0)
         .visible(renderBlocks::get)

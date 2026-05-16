@@ -1,13 +1,6 @@
 name: Tagged Release
 on:
-  workflow_dispatch:
-    inputs:
-      reason:
-        required: true
-        description: "Reason for manual run"
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch
 
 jobs:
   tagged-release:
