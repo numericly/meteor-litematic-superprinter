@@ -34,6 +34,7 @@ It will also close trap doors and doors if needed
 
 ## Known Issues
 
+- If two people are running the printer and try to place a block in the same location, it will cause extra blocks to be placed
 - Won't place doors sometimes
 - Won't close fence gates
 - Will not place ignore: signs, potted plants, banners, and many more
