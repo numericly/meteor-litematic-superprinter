@@ -1,11 +1,20 @@
 package net.numericly.superprinter.modules;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacementManager;
+import fi.dy.masa.litematica.schematic.placement.SubRegionPlacement;
+import meteordevelopment.meteorclient.MeteorClient;
+import meteordevelopment.meteorclient.systems.modules.movement.Flight;
+import meteordevelopment.meteorclient.systems.modules.movement.Scaffold;
 import meteordevelopment.meteorclient.utils.render.color.Color;
+import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.GameMode;
 import net.numericly.superprinter.SuperPrinter;
 import net.numericly.superprinter.utils.InventoryManager;
@@ -118,7 +127,7 @@ public class ModulePrinter extends Module {
     private boolean dupeNext = false;
     private long dupedAt = 0;
 
-    private final List<Task> tasks = new ArrayList<>();
+    private final List<BlockPos> toCheck = new ArrayList<>();
 
     record CompletedTask(Long time, BlockPos location) {}
 
@@ -148,36 +157,33 @@ public class ModulePrinter extends Module {
         completedTasks.removeIf(s -> System.currentTimeMillis() - s.time() > fadeTime.get());
 
         WorldSchematic worldSchematic = SchematicWorldHandler.getSchematicWorld();
+
         if (worldSchematic == null) {
             completedTasks.clear();
             toggle();
             return;
         }
 
-        BlockIterator.register(6, 6, (pos, blockState) -> {
+        BlockIterator.register(6, 7, (pos, blockState) -> {
             BlockState required = worldSchematic.getBlockState(pos);
-            BlockState current = mc.world.getBlockState(pos);
 
-            if (
-                Utils.isWithinBlockInteractionRange(pos) &&
+            if (Utils.isWithinBlockInteractionRange(pos) &&
                 !required.isAir() &&
-                DataManager.getRenderLayerRange().isPositionWithinRange(pos)
+                DataManager.getRenderLayerRange().isPositionWithinRange(pos) &&
+                blockState != required
             ) {
-                Task task = Tasks.getOrCreateTask(required, current, new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
-                if (task != null) {
-                    tasks.add(task);
-                }
+                toCheck.add(new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
             }
         });
 
         BlockIterator.after(() -> {
-            tasks.sort(Task.NEAREST);
+            toCheck.sort(Utils.NEAREST);
 
             int blocksAllowed = (int) Math.floor(bpt.get());
 
-            if (extraBlock >= 1 && tasks.size() > blocksAllowed) {
+            if (extraBlock >= 1) {
+                extraBlock = 0;
                 blocksAllowed++;
-                extraBlock = 0.0F;
             }
 
             long sinceDuped = System.currentTimeMillis() - dupedAt;
@@ -195,21 +201,27 @@ public class ModulePrinter extends Module {
 
             int executed = 0;
 
-            for (int i = 0; i < tasks.size(); i++) {
-                Task task = tasks.removeFirst();
+            Profilers.get().push("sp-placement");
 
+            for (BlockPos pos : toCheck) {
                 if (executed >= blocksAllowed) {
                     break;
                 }
 
-                if (task.execute()) {
+                BlockState required = worldSchematic.getBlockState(pos);
+                BlockState current = mc.world.getBlockState(pos);
+
+                Task task = Tasks.getOrCreateTask(required, current, new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
+
+                if (task != null && task.execute()) {
                     completedTasks.add(new CompletedTask(System.currentTimeMillis(), task.getLocation()));
                     executed++;
                 }
-
             }
 
-            tasks.clear();
+            Profilers.get().pop();
+
+            toCheck.clear();
 
             extraBlock += bpt.get() % 1;
         });
@@ -224,6 +236,16 @@ public class ModulePrinter extends Module {
 
                 event.renderer.box(s.location(), fade(sideColor.get(), fadeAmount), fade(lineColor.get(), fadeAmount), shapeMode.get(), 0);
             });
+
+//            for (SchematicPlacement placement: DataManager.getSchematicPlacementManager().getAllSchematicsPlacements()) {
+//
+//                SuperPrinter.LOG.info("{}", placement.getSubRegionBoxes(SubRegionPlacement.RequiredEnabled.ANY).size());
+//                fi.dy.masa.litematica.selection.Box enclosingBox = placement.getEclosingBox();
+//                if (enclosingBox == null) continue;
+//                Box box = new Box(enclosingBox.getPos1().toCenterPos(), enclosingBox.getPos2().toCenterPos()).expand(0.5);
+//
+//                event.renderer.box(box, sideColor.get(), sideColor.get(), shapeMode.get(), 0);
+//            }
         }
     }
 

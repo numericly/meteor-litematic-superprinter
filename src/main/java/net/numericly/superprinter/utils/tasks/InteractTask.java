@@ -46,6 +46,8 @@ public class InteractTask extends Task {
 
         if (mc.world.getBlockState(location) != current) return false;
 
+        if (!Utils.isWithinBlockInteractionRange(location)) return false;
+
         Utils.setSneaking(false);
 
         mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, hitResult);
