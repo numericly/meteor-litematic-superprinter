@@ -1,5 +1,7 @@
 package net.numericly.superprinter.utils.tasks;
 
+import fi.dy.masa.litematica.world.SchematicWorldHandler;
+import fi.dy.masa.litematica.world.WorldSchematic;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import net.minecraft.block.*;
@@ -199,6 +201,19 @@ public class PlaceTask extends Task {
         if (mc.world.getBlockState(location) != current) return false;
 
         if (!InventoryManager.switchItem(item)) {
+            return false;
+        }
+
+
+        WorldSchematic worldSchematic = SchematicWorldHandler.getSchematicWorld();
+
+        if (worldSchematic == null) {
+            return false;
+        }
+
+        BlockState state = worldSchematic.getBlockState(location);
+
+        if (!mc.world.canPlace(state, location, ShapeContext.absent())) {
             return false;
         }
 

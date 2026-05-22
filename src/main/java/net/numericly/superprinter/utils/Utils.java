@@ -2,6 +2,7 @@ package net.numericly.superprinter.utils;
 
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
+import meteordevelopment.meteorclient.systems.modules.movement.Scaffold;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
 import net.minecraft.util.PlayerInput;
@@ -64,7 +65,6 @@ public class Utils {
 
     public static boolean isValid(World world, Vec3d pos, EntityDimensions hitbox) {
         Box box = hitbox.getBoxAt(pos);
-
 
         if (!world.isSpaceEmpty(mc.player, box)) {
             return false;
