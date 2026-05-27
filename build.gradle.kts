@@ -39,6 +39,10 @@ dependencies {
     modImplementation(libs.malilib)
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/superprinter.classtweaker")
+}
+
 tasks {
     processResources {
         val propertyMap = mapOf(

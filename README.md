@@ -8,7 +8,7 @@ _This only works on servers with NO anti-cheat. Using it anywhere else will not 
 
 ## How to use
 
-For 1.21+ use fork of litematica maintaind by [sakura-ryoko](https://github.com/sakura-ryoko)
+For 1.21+ use fork of litematica maintained by [sakura-ryoko](https://github.com/sakura-ryoko)
 
 Stand in range of the schematic and have the correct items in your inventory
 
@@ -16,12 +16,19 @@ _Use 1.5 blocks per second on a default paper server for maximum efficiency_
 
 ## How it works
 
-This mod simulates the block state after placing and will match the following block properties
+For each missing block in the schematic, the printer iterates over candidate
+hit positions, click faces, and player yaw/pitch values, simulates what
+`BlockItem.getPlacementState` would produce for each combination, and uses the
+first one whose resulting block state matches the schematic. The interaction is
+then sent with the player's rotation and sneak state temporarily swapped out so
+the placement matches the simulation.
+
+It will match the following block state properties:
 
 - BLOCK_HALF
 - AXIS
 - FACING
-- HOPPER_FACING
+- FACING_HOPPER
 - HORIZONTAL_FACING
 - BLOCK_FACE
 - BED_PART
@@ -29,15 +36,51 @@ This mod simulates the block state after placing and will match the following bl
 - DOOR_HINGE
 - ATTACHMENT
 - ATTACHED
+- HANGING
+- ORIENTATION
+- VERTICAL_DIRECTION
+- ROTATION
+- Slab type (single vs. double)
+- Counted properties: LAYERS (snow), CANDLES, FLOWER_AMOUNT, SEGMENT_AMOUNT
 
-It will also close trap doors and doors if needed
+### Post-place interactions
+
+For blocks that need to be tweaked after placement, the printer right-clicks
+the existing block to step it toward the required state:
+
+- Open/close doors and trap doors
+- Open/close fence gates (rotates to face the gate first)
+- Toggle comparator mode (subtract / compare)
+- Toggle redstone wire between connected and dot
+- Cycle copper golem statue pose
+- Adjust repeater delay
+- Toggle levers
+- Toggle daylight detector inverted state
+
+### Sign editing
+
+When the printer places a sign, the sign edit screen would normally pop open
+and block further placements. The `auto-close-sign-gui` setting cancels that
+screen if it opens within one second of the placement, leaving the sign blank
+so the printer can continue.
 
 ## Known Issues
 
-- If two people are running the printer and try to place a block in the same location, it will cause extra blocks to be placed
-- Won't place doors sometimes
-- Won't close fence gates
-- Will not place ignore: signs, potted plants, banners, and many more
+- Random placement issues
+- Two players printing nearby causes issues
+- Some block states not working including potted plants, tripwires, and water cauldrons
+- Post place interactions fairly broken on high-ping
+
+### Placed block tweaks not yet implemented
+
+These are interactions performed on an already-placed block to modify its state:
+
+- Water logging
+- Putting out campfires
+- Lighting candles
+- Filling up respawn anchors
+- Placing eyes in end portal frames
+- Lighting nether portals
 
 ## Attribution
 

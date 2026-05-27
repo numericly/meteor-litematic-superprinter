@@ -23,9 +23,11 @@ import net.numericly.superprinter.utils.tasks.Task;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.litematica.world.WorldSchematic;
+import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
+import net.minecraft.client.gui.screen.ingame.AbstractSignEditScreen;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
@@ -86,6 +88,17 @@ public class ModulePrinter extends Module {
         .build()
     );
 
+    public final Setting<Boolean> autoCloseSignGui = sgGeneral.add(new BoolSetting.Builder()
+        .name("auto-close-sign-gui")
+        .description("Automatically closes the sign edit GUI after the printer places a sign.")
+        .defaultValue(true)
+        .build()
+    );
+
+    public static long lastSignPlaceTime = 0;
+
+    private static final long SIGN_CLOSE_WINDOW_MS = 1000;
+
     private final Setting<Boolean> renderBlocks = sgRendering.add(new BoolSetting.Builder()
         .name("render-placed-blocks")
         .description("Renders block placements.")
@@ -93,21 +106,21 @@ public class ModulePrinter extends Module {
         .build()
     );
 
-    private final Setting<ShapeMode> shapeMode = sgGeneral.add(new EnumSetting.Builder<ShapeMode>()
+    private final Setting<ShapeMode> shapeMode = sgRendering.add(new EnumSetting.Builder<ShapeMode>()
         .name("shape-mode")
         .description("How the shapes are rendered.")
         .defaultValue(ShapeMode.Both)
         .build()
     );
 
-    private final Setting<SettingColor> sideColor = sgGeneral.add(new ColorSetting.Builder()
+    private final Setting<SettingColor> sideColor = sgRendering.add(new ColorSetting.Builder()
         .name("side-color")
         .description("The side color.")
         .defaultValue(new SettingColor(255, 255, 255, 50))
         .build()
     );
 
-    private final Setting<SettingColor> lineColor = sgGeneral.add(new ColorSetting.Builder()
+    private final Setting<SettingColor> lineColor = sgRendering.add(new ColorSetting.Builder()
         .name("line-color")
         .description("The line color.")
         .defaultValue(new SettingColor(255, 255, 255, 255))
@@ -228,6 +241,15 @@ public class ModulePrinter extends Module {
     }
 
     @EventHandler
+    private void onOpenScreen(OpenScreenEvent event) {
+        if (!autoCloseSignGui.get()) return;
+        if (!(event.screen instanceof AbstractSignEditScreen)) return;
+        if (System.currentTimeMillis() - lastSignPlaceTime > SIGN_CLOSE_WINDOW_MS) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
     private void onRender(Render3DEvent event) {
         if (renderBlocks.get()) {
             completedTasks.forEach(s -> {
@@ -236,16 +258,6 @@ public class ModulePrinter extends Module {
 
                 event.renderer.box(s.location(), fade(sideColor.get(), fadeAmount), fade(lineColor.get(), fadeAmount), shapeMode.get(), 0);
             });
-
-//            for (SchematicPlacement placement: DataManager.getSchematicPlacementManager().getAllSchematicsPlacements()) {
-//
-//                SuperPrinter.LOG.info("{}", placement.getSubRegionBoxes(SubRegionPlacement.RequiredEnabled.ANY).size());
-//                fi.dy.masa.litematica.selection.Box enclosingBox = placement.getEclosingBox();
-//                if (enclosingBox == null) continue;
-//                Box box = new Box(enclosingBox.getPos1().toCenterPos(), enclosingBox.getPos2().toCenterPos()).expand(0.5);
-//
-//                event.renderer.box(box, sideColor.get(), sideColor.get(), shapeMode.get(), 0);
-//            }
         }
     }
 

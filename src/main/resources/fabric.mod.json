@@ -11,6 +11,7 @@
     "sources": "https://github.com/numericly/meteor-litematic-superprinter"
   },
   "icon": "assets/superprinter/icon.png",
+  "accessWidener" : "superprinter.classtweaker",
   "environment": "client",
   "entrypoints": {
     "meteor": [
